@@ -117,38 +117,46 @@ def jump_sample_bag(input_bag, step, topics ,output_bag_path, start_time = 0):
   
   
   
-  def extract_individual_calibration_bag(bag_path, original_topics, extract_topics, steps):
-    message_cout = 0
-    camera_topics = ["CAM_A", "CAM_B", "CAM_C", "CAM_D"]
-    camera_index_index = {"CAM_A": 0, "CAM_B": 1, "CAM_C": 2, "CAM_D": 3}
-    bag = rosbag.Bag(bag_path)
-    cam_name = extract_topics
-    cam_names = cam_name.split(",")
-    step = steps
-    write_index = []
+def extract_individual_calibration_bag(bag_path, original_topics, extract_topics, steps):
+  message_cout = 0
+  camera_topics = ["CAM_A", "CAM_B", "CAM_C", "CAM_D"]
+  camera_index_index = {"CAM_A": 0, "CAM_B": 1, "CAM_C": 2, "CAM_D": 3}
+  bag = rosbag.Bag(bag_path)
+  output_path = os.path.dirname(bag_path) + "/extract_output/"
+  if not os.path.exists(output_path):
+    os.mkdir(output_path)
+  cam_name = extract_topics
+  cam_names = cam_name.split(",")
+  step = steps
+  write_index = []
+  for name in cam_names:
+    write_index.append(camera_index_index[name])
+  print("read camera topics from {}".format(cam_names))
+  if len(cam_names) == 1:
+    output_path += cam_names[0]
+  elif len(cam_names) > 1:
     for name in cam_names:
-      write_index.append(camera_index_index[name])
-    print("read camera topics from {}".format(cam_names))
-    output_path = os.path.dirname(args.bag) + "/split.bag"
-    ouput_bag = rosbag.Bag(output_path, 'w')
-    bridge = CvBridge()
-    for topic, msg, t in bag.read_messages():
-      if topic == original_topics:
-        if msg._type == "sensor_msgs/Image":
-            img = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
-        else:
-            img = bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='passthrough')
-        message_cout += 1
-        if message_cout % step != 0:
-          continue
-        images = common_utils.splitImage(img, 4)
-        for i in write_index:
-          image_msg = bridge.cv2_to_imgmsg(images[i], encoding="passthrough")
-          image_msg.header = msg.header
-          ouput_bag.write(camera_topics[i], image_msg, t)
+      output_path += name + "-"
+  output_path += ".bag"
+  ouput_bag = rosbag.Bag(output_path, 'w')
+  bridge = CvBridge()
+  for topic, msg, t in bag.read_messages():
+    if topic == original_topics:
+      if msg._type == "sensor_msgs/Image":
+          img = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
       else:
-        ouput_bag.write(topic, msg, t)
-    ouput_bag.close()
-    bag.close()
-    print("Extracted bag saved to: ", output_path)
+          img = bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='passthrough')
+      message_cout += 1
+      if message_cout % step != 0:
+        continue
+      images = common_utils.splitImage(img, 4)
+      for i in write_index:
+        image_msg = bridge.cv2_to_imgmsg(images[i], encoding="passthrough")
+        image_msg.header = msg.header
+        ouput_bag.write(camera_topics[i], image_msg, t)
+    else:
+      ouput_bag.write(topic, msg, t)
+  ouput_bag.close()
+  bag.close()
+  print("Extracted bag saved to: ", output_path)
   
