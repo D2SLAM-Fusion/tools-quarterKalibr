@@ -1,0 +1,11 @@
+#Accelerometer
+accelerometer_noise_density: 0.0018445838609014217 
+accelerometer_random_walk: 9.637244490647607e-05 
+
+#Gyroscope
+gyroscope_noise_density: 0.0001606421844332533 
+gyroscope_random_walk: 6.091456992295194e-06 
+
+rostopic: '/mavros/imu/data_raw' #Make sure this is correct
+update_rate: 500.0 #Make sure this is correct
+
