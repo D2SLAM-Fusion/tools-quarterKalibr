@@ -87,7 +87,7 @@ EOF"""
     # -v "{bagpath}:/data" kalibr:latest /bin/bash /data/stereo_calib.sh"""
     dockercmd = f"""docker run --rm -e "DISPLAY" -e "QT_X11_NO_MITSHM=1" --entrypoint="/data/stereo_calib.sh" \
     -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-    -v "{bagpath}:/data" omnitartancalib:kalibr  """
+    -v "{bagpath}:/data" mortyl0834/omnitartancalib:kalibr  """
     print(dockercmd)
     # with new kalibr docker, this cmd can not run properly
     p_docker = subprocess.Popen(dockercmd, shell=True, stderr=subprocess.STDOUT)
