@@ -28,6 +28,10 @@ Furthermore, splitting the calibration process reduces the waiting time and effo
 1. record rosbag:
    1. image data
    2. imu data
+
+（The following steps are in calibrate.ipynb, all you need is to click one by one; if failed, you can record a new bag to resume the calibration; use fix_calibration.ipynb extract the data bag for the failed process）
+
+1. configure your data bag path and output path 
 2. extracting calibration rosbags
 3. calibrating fisheye cameras' intrinsic parameters.
 4. calibrating stereo pair cameras' extrinsic parameters.
