@@ -37,13 +37,7 @@ Furthermore, splitting the calibration process reduces the waiting time and effo
 
 refer to video
 
+[Youtube](https://www.youtube.com/watch?v=oh9gTLWwYCM)
 
-
-
-
-
-
-
-
-
+[BiliBili](https://www.bilibili.com/video/BV1gW421d73g/?pop_share=1&vd_source=265ab01e12569e0c0a5ea306d84f0ac4)
 
