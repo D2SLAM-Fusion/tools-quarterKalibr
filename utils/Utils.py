@@ -48,18 +48,18 @@ def generate_d2vins_cinfiguration(ouput_bag_path):
     d2vins_config["cam1"] = camera_b_intrinsic
     d2vins_config["cam2"] = camera_c_intrinsic
     d2vins_config["cam3"] = camera_d_intrinsic
-    cam_1_2_yaml = open(ouput_bag_path + "/CAM_A-CAM_B/log1-camchain.yaml", "r")
-    cam_1_2_extrinsic = yaml.load(cam_1_2_yaml, Loader=yaml.FullLoader)["cam1"]["T_cn_cnm1"]
-    cam_1_2_yaml.close()
-    cam_2_3_yaml = open(ouput_bag_path + "/CAM_B-CAM_C/log1-camchain.yaml", "r")
-    cam_2_3_extrinsic = yaml.load(cam_2_3_yaml, Loader=yaml.FullLoader)["cam1"]["T_cn_cnm1"]
-    cam_2_3_yaml.close()
-    cam_3_4_yaml = open(ouput_bag_path + "/CAM_C-CAM_D/log1-camchain.yaml", "r")
-    cam_3_4_extrinsic = yaml.load(cam_3_4_yaml, Loader=yaml.FullLoader)["cam1"]["T_cn_cnm1"]
-    cam_3_4_yaml.close()
-    d2vins_config["cam1"]["T_cn_cnm1"] = cam_1_2_extrinsic
-    d2vins_config["cam2"]["T_cn_cnm1"] = cam_2_3_extrinsic
-    d2vins_config["cam3"]["T_cn_cnm1"] = cam_3_4_extrinsic
+    # cam_1_2_yaml = open(ouput_bag_path + "/CAM_A-CAM_B/log1-camchain.yaml", "r")
+    # cam_1_2_extrinsic = yaml.load(cam_1_2_yaml, Loader=yaml.FullLoader)["cam1"]["T_cn_cnm1"]
+    # cam_1_2_yaml.close()
+    # cam_2_3_yaml = open(ouput_bag_path + "/CAM_B-CAM_C/log1-camchain.yaml", "r")
+    # cam_2_3_extrinsic = yaml.load(cam_2_3_yaml, Loader=yaml.FullLoader)["cam1"]["T_cn_cnm1"]
+    # cam_2_3_yaml.close()
+    # cam_3_4_yaml = open(ouput_bag_path + "/CAM_C-CAM_D/log1-camchain.yaml", "r")
+    # cam_3_4_extrinsic = yaml.load(cam_3_4_yaml, Loader=yaml.FullLoader)["cam1"]["T_cn_cnm1"]
+    # cam_3_4_yaml.close()
+    # d2vins_config["cam1"]["T_cn_cnm1"] = cam_1_2_extrinsic
+    # d2vins_config["cam2"]["T_cn_cnm1"] = cam_2_3_extrinsic
+    # d2vins_config["cam3"]["T_cn_cnm1"] = cam_3_4_extrinsic
     # cam_imu
     cam_a_imu_yaml = open(ouput_bag_path + "/CAM_A-camchain-imucam.yaml", "r")
     cam_a_imu_extrinsic = yaml.load(cam_a_imu_yaml, Loader=yaml.FullLoader)["cam0"]["T_cam_imu"]

@@ -1,0 +1,5 @@
+tqdm
+pyyaml
+opencv_python>=4.10
+opencv-contrib-python>=4.10.0
+transformations

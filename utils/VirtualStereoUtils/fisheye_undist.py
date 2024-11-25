@@ -25,7 +25,7 @@ class FisheyeUndist:
                 pts3d[0, c] = p3d
                 c += 1
         rvec, tvec = np.array([0., 0., 0.]), np.array([0., 0., 0.])
-        pts2d_raw, _ = cv.omnidir.projectPoints(pts3d, rvec, tvec, self.camera_matrix, self.xi, self.dist_coeffs)
+        pts2d_raw = projectPoints(pts3d, rvec, tvec, self.camera_matrix, self.xi, self.dist_coeffs)
         mapxy = pts2d_raw.reshape((height, width, 2))
         #Map from imgPtsundist to pts2d_raw
         mapx, mapy = cv.convertMaps(mapxy, None, cv.CV_32FC1)
@@ -85,3 +85,61 @@ if __name__ == "__main__":
     cv.imshow("Undist", show)
     cv.waitKey(0)
 
+def projectPoints(pts3d, rvec, t, K, xi, D):
+    """
+    Projects 3D points onto a 2D image plane using a camera model with radial and tangential distortion.
+
+    Parameters:
+    - pts3d: numpy array of shape (n, 3), 3D points in world coordinates.
+    - rvec: numpy array of shape (3, 3), rotation vector
+    - t: numpy array of shape (3,), translation vector.
+    - K: numpy array of shape (3, 3), intrinsic camera matrix.
+    - xi: float, parameter for the unit sphere model.
+    - D: numpy array of shape (4,), distortion coefficients (k1, k2, p1, p2).
+
+    Returns:
+    - pts2d: numpy array of shape (n, 2), projected 2D points in pixel coordinates.
+    """
+    R = cv.Rodrigues(rvec)[0]
+    pts3d = pts3d.reshape(-1, 3)
+    n = pts3d.shape[0]
+    k1, k2, p1, p2 = D
+
+    # Intrinsic parameters
+    fx, fy = K[0, 0], K[1, 1]
+    cx, cy = K[0, 2], K[1, 2]
+    s = K[0, 1]  # Skew coefficient
+
+    # Initialize output array
+    pts2d = np.zeros((n, 2), dtype=np.float32)
+
+    for i in range(n):
+        # Convert to camera coordinate
+        Xw = pts3d[i]
+        Xc = np.dot(R, Xw) + t
+
+        # Convert to unit sphere
+        norm_Xc = np.linalg.norm(Xc)
+        Xs = Xc / norm_Xc
+
+        # Convert to normalized image plane
+        xu = np.array([Xs[0] / (Xs[2] + xi), Xs[1] / (Xs[2] + xi)])
+
+        # Add distortion
+        r2 = np.dot(xu, xu)
+        r4 = r2 * r2
+
+        xd = np.zeros(2)
+        xd[0] = xu[0] * (1 + k1 * r2 + k2 * r4) + 2 * p1 * xu[0] * xu[1] + p2 * (r2 + 2 * xu[0] ** 2)
+        xd[1] = xu[1] * (1 + k1 * r2 + k2 * r4) + p1 * (r2 + 2 * xu[1] ** 2) + 2 * p2 * xu[0] * xu[1]
+
+        # Convert to pixel coordinates
+        final = np.zeros(2)
+        final[0] = fx * xd[0] + s * xd[1] + cx
+        final[1] = fy * xd[1] + cy
+
+        # print(Xw, final)
+
+        pts2d[i] = final
+
+    return pts2d

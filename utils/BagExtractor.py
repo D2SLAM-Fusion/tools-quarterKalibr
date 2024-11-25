@@ -3,7 +3,6 @@ from cv_bridge import CvBridge
 import cv2 as cv
 import tqdm
 import os
-import apriltag
 import sys
 import utils.Utils as common_utils
 sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
@@ -22,6 +21,14 @@ def write_april_tag_target(ouput_dir):
 
 
 def extract_calibration_bag(bag_path, output_path, image_topic):
+    arucoParams = cv.aruco.DetectorParameters()
+    arucoParams.markerBorderBits = 2
+    arucoParams.adaptiveThreshWinSizeStep = 1
+    arucoParams.adaptiveThreshWinSizeMin = 3
+    detector_opencv = cv.aruco.ArucoDetector(cv.aruco.getPredefinedDictionary(cv.aruco.DICT_APRILTAG_36h11),
+                                            arucoParams)
+    print(cv.__version__)
+
     current_step = 1
     bags = []
     bag = rosbag.Bag(bag_path)
@@ -47,14 +54,13 @@ def extract_calibration_bag(bag_path, output_path, image_topic):
             gray_image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
             gray_images = common_utils.splitImage(gray_image, 4)
             #detect apriltag
-            detector = apriltag.Detector(apriltag.DetectorOptions(families='tag36h11'))
             status = 0
             for i in range(4):
                 # image_name = "image_" + str(i)
                 # cv.imshow(image_name, images[i])
                 # cv.waitKey(1)
-                results = detector.detect(gray_images[i])
-                if len(results) > 0:
+                marker_corners, ids, rejectedImgPoints = detector_opencv.detectMarkers(gray_images[i])
+                if ids is not None and len(ids) > 0:
                     status |= 1 << i
             if  PrivateGlobalValue.step_dict.get(status) - current_step == 1:
                 current_step = PrivateGlobalValue.step_dict.get(status)
