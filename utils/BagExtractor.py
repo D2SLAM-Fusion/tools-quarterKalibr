@@ -68,13 +68,9 @@ def extract_calibration_bag(bag_path, output_path, image_topic):
                 output_bag_path = output_path + PrivateGlobalValue.rosbag_name[current_step] + ".bag"
                 bags.append(output_bag_path)
                 output_bag = rosbag.Bag(output_bag_path, 'w')
-            else :
-                for i in range(4): # we write all image
-                    write_image = images[i]
-                    # change image to rosbag
-                    camera_msg = bridge.cv2_to_imgmsg(write_image, encoding="bgr8")
-                    camera_msg.header = msg.header
-                    output_bag.write(PrivateGlobalValue.camera_topics[i], camera_msg, t)
+            else :  # only write valid images
+                for i in {5: [3, 0], 6: [0, 1], 7: [1, 2], 8: [2, 3]}.get(current_step, [current_step - 1]):
+                    write_image_to_bag(i, images, bridge, msg, output_bag, t)
             #collect data 
             if current_step >=5:
                 depth_stereo_bag.write(topic, msg, t)
@@ -86,7 +82,13 @@ def extract_calibration_bag(bag_path, output_path, image_topic):
     output_bag.close()
     depth_stereo_bag.close()
     return bags
-  
+
+def write_image_to_bag(i, images, bridge, msg, output_bag, t):
+    write_image = images[i]
+    # change image to rosbag
+    camera_msg = bridge.cv2_to_imgmsg(write_image, encoding="bgr8")
+    camera_msg.header = msg.header
+    output_bag.write(PrivateGlobalValue.camera_topics[i], camera_msg, t)
   
 def jump_sample_bag(input_bag, step, topics ,output_bag_path, start_time = 0):
   sample = 0
